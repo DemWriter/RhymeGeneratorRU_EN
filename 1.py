@@ -1,6 +1,12 @@
 from bs4 import BeautifulSoup
 from tabulate import tabulate
+from google.cloud import translate
 import requests
+
+translate_client = translate.Client()
+
+def translate(t,lan):
+    return(translate_client.translate(t, target_language=lan)['translatedText'])
 
 dic = {'ь':'', 'ъ':'', 'а':'a', 'б':'b','в':'v',
        'г':'g', 'д':'d', 'е':'e', 'ё':'yo','ж':'zh',
@@ -65,12 +71,12 @@ def get_rhymes_en(w):
         print('rhyme not found')
         return []
 
-def sft(x):
+def sft(x,lan):
     c=0
     t,re=[],[]
     for j in x:
-        t.append(j)
-        if(c>8):
+        t.append([j,translate(j,lan)])
+        if(c>3):
             c=0
             re.append(t)
             t=[]
@@ -85,10 +91,11 @@ def tr(x):
 
 while(1):
     i = input('<< ')
-    print('Английские рифмы: ')
-    print(tabulate(sft(get_rhymes_en(tr(i)))))
+    print('English rhymes: ')
+    print(tabulate(sft(get_rhymes_en(tr(i)),'ru')))
     print('\n\n')
 
-    print('Русские рифмы: ')
-    print(tabulate(sft(get_rhymes_rus(i))))
+    print('Russian rhymes: ')
+    print(tabulate(sft(get_rhymes_rus(i),'en')))
     print('\n\n')
+
